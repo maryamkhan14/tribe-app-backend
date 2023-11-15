@@ -3,7 +3,7 @@ name: CodeCov Coverage Collection
 on:
   push:
     branches:
-      - "develop"
+      - "trib-148-badge-coverage-concept"
 
 jobs:
   coverage:
