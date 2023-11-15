@@ -1,5 +1,5 @@
 codecov:
-  branch: develop
+  branch: trib-148-badge-coverage-concept
 coverage:
   status:
     project:
