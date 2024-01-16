@@ -1,6 +1,7 @@
 codecov:
   branch: develop
 coverage:
+  round: nearest
   status:
     project:
       default:
