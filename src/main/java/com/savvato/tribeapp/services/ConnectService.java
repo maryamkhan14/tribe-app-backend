@@ -5,12 +5,9 @@ import com.savvato.tribeapp.dto.ConnectIncomingMessageDTO;
 import com.savvato.tribeapp.dto.ConnectOutgoingMessageDTO;
 import org.springframework.messaging.handler.annotation.Header;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface ConnectService {
-
-    List<ConnectOutgoingMessageDTO> getAllConnectionsForAUser(Long userId);
 
     Optional<String> getQRCodeString(long userId);
 
