@@ -10,3 +10,6 @@ coverage:
         base: auto
         paths:
           - "src"
+parsers:
+  jacoco:
+    partials_as_hits: true

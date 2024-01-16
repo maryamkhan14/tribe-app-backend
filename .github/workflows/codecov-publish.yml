@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "develop"
+      - "codecov-base-branch-test"
 
 jobs:
   coverage:
