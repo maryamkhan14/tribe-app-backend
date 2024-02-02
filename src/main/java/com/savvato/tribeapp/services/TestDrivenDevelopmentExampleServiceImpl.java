@@ -2,7 +2,7 @@ package com.savvato.tribeapp.services;
 
 public class TestDrivenDevelopmentExampleServiceImpl implements TestDrivenDevelopmentExampleService {
     @Override
-    public String getString(int length, char ch) {
+    public String[] getString(int length, char ch, int arrayLength) {
         String rtn = "";
         int index = 1;
 
@@ -17,6 +17,6 @@ public class TestDrivenDevelopmentExampleServiceImpl implements TestDrivenDevelo
             rtn += appendedChar;
         }
 
-        return rtn;
+        return new String[]{rtn};
     }
 }
