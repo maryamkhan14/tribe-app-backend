@@ -2,7 +2,7 @@ package com.savvato.tribeapp.services;
 
 public class TestDrivenDevelopmentExampleServiceImpl implements TestDrivenDevelopmentExampleService {
     @Override
-    public String getString() {
+    public String getString(int length) {
         return "abc";
     }
 }
