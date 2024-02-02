@@ -2,11 +2,19 @@ package com.savvato.tribeapp.services;
 
 public class TestDrivenDevelopmentExampleServiceImpl implements TestDrivenDevelopmentExampleService {
     @Override
-    public String getString(int length) {
+    public String getString(int length, char ch) {
         String rtn = "";
+        int index = 1;
+
+        char appendedChar = 'a';
 
         for (int i= 0; i < length; i++) {
-            rtn += "a";
+
+            do {
+                appendedChar += (char) index++;
+            } while (appendedChar == ch);
+
+            rtn += appendedChar;
         }
 
         return rtn;
