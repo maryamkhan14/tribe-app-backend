@@ -1,6 +1,5 @@
 package com.savvato.tribeapp.controllers;
 
-import com.savvato.tribeapp.config.principal.UserPrincipal;
 import com.savvato.tribeapp.controllers.annotations.controllers.ConnectAPIController.*;
 import com.savvato.tribeapp.controllers.dto.ConnectRequest;
 import com.savvato.tribeapp.controllers.dto.CosignRequest;
@@ -11,12 +10,6 @@ import com.savvato.tribeapp.services.ConnectService;
 import com.savvato.tribeapp.services.CosignService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import javax.validation.Valid;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,84 +19,98 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 @Slf4j
 @RestController
 @Tag(name = "connect", description = "Connections between users")
-@RequestMapping("/api/connect")
+@RequestMapping("/api/connections")
 public class ConnectAPIController {
-  @Autowired ConnectService connectService;
+    @Autowired
+    ConnectService connectService;
 
-  @Autowired
-  CosignService cosignService;
+    @Autowired
+    CosignService cosignService;
 
-  @ExceptionHandler(NoSuchElementException.class)
-  public ResponseEntity<String> handleNoSuchElementException(NoSuchElementException ex) {
-    log.error("Exception occurred: " + ex.getMessage());
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: " + ex.getMessage());
-  }
 
-  ConnectAPIController() {}
-
-  @GetConnections
-  @GetMapping("/{userId}/all")
-  public ResponseEntity<List<ConnectOutgoingMessageDTO>> getConnections(
-      @Parameter(description = "The user ID of a user", example = "1") @PathVariable Long userId) {
-
-    List<ConnectOutgoingMessageDTO> list = connectService.getAllConnectionsForAUser(userId);
-
-    if (list != null) {
-      return ResponseEntity.status(HttpStatus.OK).body(list);
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleNoSuchElementException(NoSuchElementException ex) {
+        log.error("Exception occurred: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error: " + ex.getMessage());
     }
-  }
 
-  @GetQRCodeString
-  @GetMapping("/{userId}")
-  public ResponseEntity getQrCodeString(
-      @Parameter(description = "The user ID of a user", example = "1") @PathVariable Long userId) {
-
-    Optional<String> opt = connectService.storeQRCodeString(userId);
-
-    if (opt.isPresent()) {
-      return ResponseEntity.status(HttpStatus.OK).body(opt.get());
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    ConnectAPIController() {
     }
-  }
 
-  @Connect
-  @PostMapping
-  public boolean connect(@RequestBody @Valid ConnectRequest connectRequest) {
-    if (connectService.validateQRCode(connectRequest.qrcodePhrase, connectRequest.toBeConnectedWithUserId)) {
-      return connectService.saveConnectionDetails(connectRequest.requestingUserId, connectRequest.toBeConnectedWithUserId);
-    } else {
-      return false;
+
+    @GetConnections
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<ConnectOutgoingMessageDTO>> getConnections(
+            @Parameter(description = "The user ID of a user", example = "1") @PathVariable Long userId) {
+
+        List<ConnectOutgoingMessageDTO> list = connectService.getAllConnectionsForAUser(userId);
+
+        if (list != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(list);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
-  }
 
-  @MessageMapping("/connect/room")
-  public void connect(@Payload ConnectIncomingMessageDTO incoming, @Header("simpSessionId") String sessionId) {
-      connectService.connect(incoming);
-  }
+    @GetQRCodeString
+    @GetMapping("/qr-code/{userId}")
+    public ResponseEntity getQrCodeString(
+            @Parameter(description = "The user ID of a user", example = "1") @PathVariable Long userId) {
 
-  @SaveCosign
-  @PostMapping("/cosign")
-  public ResponseEntity<CosignDTO> saveCosign(@RequestBody @Valid CosignRequest cosignRequest) {
+        Optional<String> opt = connectService.storeQRCodeString(userId);
 
-      CosignDTO cosignDTO = cosignService.saveCosign(cosignRequest.userIdIssuing, cosignRequest.userIdReceiving, cosignRequest.phraseId);
-      
-      return ResponseEntity.status(HttpStatus.OK).body(cosignDTO);
+        if (opt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(opt.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
 
-  }
-  @DeleteCosign
-  @DeleteMapping("/cosign")
-  public ResponseEntity deleteCosign(@RequestBody @Valid CosignRequest cosignRequest) throws Exception {
+    @Connect
+    @PostMapping
+    public boolean connect(@RequestBody @Valid ConnectRequest connectRequest) {
+        if (connectService.validateQRCode(
+                connectRequest.qrcodePhrase, connectRequest.toBeConnectedWithUserId)) {
+            boolean isConnectionSaved =
+                    connectService.saveConnectionDetails(
+                            connectRequest.requestingUserId, connectRequest.toBeConnectedWithUserId);
+            return isConnectionSaved;
+        } else {
+            return false;
+        }
+    }
 
-    cosignService.deleteCosign(cosignRequest.userIdIssuing, cosignRequest.userIdReceiving, cosignRequest.phraseId);
+    @MessageMapping("/connect/room")
+    public void connect(@Payload ConnectIncomingMessageDTO incoming, @Header("simpSessionId") String sessionId) {
+        connectService.connect(incoming);
+    }
 
-    return ResponseEntity.status(HttpStatus.OK).build();
+    @SaveCosign
+    @PostMapping("/cosign")
+    public ResponseEntity<CosignDTO> saveCosign(@RequestBody @Valid CosignRequest cosignRequest) {
 
-  }
+        CosignDTO cosignDTO = cosignService.saveCosign(cosignRequest.userIdIssuing, cosignRequest.userIdReceiving, cosignRequest.phraseId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(cosignDTO);
+
+    }
+
+    @DeleteCosign
+    @DeleteMapping("/cosign")
+    public ResponseEntity deleteCosign(@RequestBody @Valid CosignRequest cosignRequest) throws Exception {
+
+        cosignService.deleteCosign(cosignRequest.userIdIssuing, cosignRequest.userIdReceiving, cosignRequest.phraseId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+
+    }
 }
