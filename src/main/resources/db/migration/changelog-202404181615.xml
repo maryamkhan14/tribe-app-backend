@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet author="maryam" id="202404181615-01">
+        <createTable tableName="announcement" catalogName="tribeapp_db" >
+            <column name="id" type="BIGINT(20)" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="announcer_id" type="BIGINT(20)">
+                <constraints nullable="false" foreignKeyName="announcement_fk1" references="user(id)"/>
+            </column>
+            <column name="title" type="VARCHAR(75)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="body" type="VARCHAR(8000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_targeted" type="TINYINT(1)" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="maryam" id="202404181615-02">
+        <createTable tableName="announcement_phrase_map" catalogName="tribeapp_db" >
+            <column name="announcement_id" type="BIGINT(20)">
+                <constraints nullable="false" foreignKeyName="announcement_phrase_map_fk1" references="announcement(id)"/>
+            </column>
+            <column name="phrase_id" type="BIGINT(20)">
+                <constraints nullable="false" foreignKeyName="announcement_phrase_map_fk2" references="phrase(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
