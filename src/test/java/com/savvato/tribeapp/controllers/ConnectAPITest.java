@@ -64,7 +64,8 @@ public class ConnectAPITest {
     @MockBean
     private ConnectService connectService;
 
-    @MockBean CosignService cosignService;
+    @MockBean
+    CosignService cosignService;
 
     @MockBean
     private CosignRepository repository;
@@ -106,7 +107,7 @@ public class ConnectAPITest {
         String auth = AuthServiceImpl.generateAccessToken(user);
         this.mockMvc
                 .perform(
-                        get("/api/connect/{userId}", userId)
+                        get("/api/connections/qr-code/{userId}", userId)
                                 .header("Authorization", "Bearer " + auth)
                                 .characterEncoding("utf-8"))
                 .andExpect(status().isOk())
@@ -127,7 +128,7 @@ public class ConnectAPITest {
 
         this.mockMvc
                 .perform(
-                        get("/api/connect/{userId}", userId)
+                        get("/api/connections/qr-code/{userId}", userId)
                                 .header("Authorization", "Bearer " + auth)
                                 .characterEncoding("utf-8"))
                 .andExpect(status().isBadRequest())
@@ -155,7 +156,7 @@ public class ConnectAPITest {
         ArgumentCaptor<String> qrCodePhraseCaptor = ArgumentCaptor.forClass(String.class);
         this.mockMvc
                 .perform(
-                        post("/api/connect")
+                        post("/api/connections")
                                 .content(gson.toJson(connectRequest))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + auth)
@@ -213,7 +214,7 @@ public class ConnectAPITest {
         ArgumentCaptor<String> qrCodePhraseCaptor = ArgumentCaptor.forClass(String.class);
         this.mockMvc
                 .perform(
-                        post("/api/connect")
+                        post("/api/connections")
                                 .content(gson.toJson(connectRequest))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + auth)
@@ -251,7 +252,7 @@ public class ConnectAPITest {
 
         this.mockMvc
                 .perform(
-                        post("/api/connect/cosign")
+                        post("/api/connections/cosign")
                                 .content(gson.toJson(cosignRequest))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + auth)
@@ -272,7 +273,7 @@ public class ConnectAPITest {
         ArgumentCaptor<ConnectionRemovalRequest> connectionDeleteRequestCaptor = ArgumentCaptor.forClass(ConnectionRemovalRequest.class);
         this.mockMvc
                 .perform(
-                        delete("/api/connect")
+                        delete("/api/connections")
                                 .content(gson.toJson(connectionDeleteRequest))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + auth)
@@ -285,7 +286,7 @@ public class ConnectAPITest {
 
     }
 
-//    @Test
+    //    @Test
     public void removeConnectionWhenRemovalUnsuccessful() throws Exception {
         when(userPrincipalService.getUserPrincipalByEmail(Mockito.anyString()))
                 .thenReturn(new UserPrincipal(user));
@@ -298,7 +299,7 @@ public class ConnectAPITest {
         ArgumentCaptor<ConnectionRemovalRequest> connectionDeleteRequestCaptor = ArgumentCaptor.forClass(ConnectionRemovalRequest.class);
         this.mockMvc
                 .perform(
-                        delete("/api/connect")
+                        delete("/api/connections")
                                 .content(gson.toJson(connectionDeleteRequest))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + auth)
@@ -334,21 +335,23 @@ public class ConnectAPITest {
         when(connectService.getAllConnectionsForAUser(anyLong())).thenReturn(expectedReturnDtoList);
 
         MvcResult result =
-            this.mockMvc
-                    .perform(
-                            get("/api/connect/{userId}/all", toBeConnectedWithUserId)
-                                    .header("Authorization", "Bearer " + auth)
-                                    .characterEncoding("utf-8"))
-                    .andExpect(status().isOk())
-                    .andReturn();
+                this.mockMvc
+                        .perform(
+                                get("/api/connections/{userId}/all", toBeConnectedWithUserId)
+                                        .header("Authorization", "Bearer " + auth)
+                                        .characterEncoding("utf-8"))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
-        Type connectOutgoingMessageListDTOType = new TypeToken<List<ConnectOutgoingMessageDTO>>(){}.getType();
+        Type connectOutgoingMessageListDTOType = new TypeToken<List<ConnectOutgoingMessageDTO>>() {
+        }.getType();
 
         List<ConnectOutgoingMessageDTO> actualConnectOutingMessages =
                 gson.fromJson(result.getResponse().getContentAsString(), connectOutgoingMessageListDTOType);
 
         assertThat(actualConnectOutingMessages).usingRecursiveComparison().isEqualTo(expectedReturnDtoList);
     }
+
 
     @Test
     public void testGetConnectionsSadPath() throws Exception {
@@ -363,7 +366,7 @@ public class ConnectAPITest {
         MvcResult result =
                 this.mockMvc
                         .perform(
-                                get("/api/connect/{userId}/all", userId)
+                                get("/api/connections/{userId}/all", userId)
                                         .header("Authorization", "Bearer " + auth)
                                         .characterEncoding("utf-8"))
                         .andExpect(status().isBadRequest())

@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,7 +101,7 @@ public class SMSChallengeCodeAPITest {
         when(smsccs.sendSMSChallengeCodeToPhoneNumber(anyString())).thenReturn(smsChallengeRequest.code);
         this.mockMvc
                 .perform(
-                        post("/api/public/sendSMSChallengeCodeToPhoneNumber")
+                        post("/api/public/sms-challenge-code")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(gson.toJson(smsChallengeRequest))
                                 .characterEncoding("utf-8"))
@@ -122,7 +123,7 @@ public class SMSChallengeCodeAPITest {
 
         this.mockMvc
                 .perform(
-                        post("/api/public/clearSMSChallengeCodeToPhoneNumber")
+                        delete("/api/public/sms-challenge-code")
                                 .param("phoneNumber", phoneNumber)
                                 .header("Authorization", "Bearer " + auth)
                                 .characterEncoding("utf-8"))

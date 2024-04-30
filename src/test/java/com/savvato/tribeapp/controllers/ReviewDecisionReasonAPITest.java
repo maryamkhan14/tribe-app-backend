@@ -79,9 +79,9 @@ public class ReviewDecisionReasonAPITest {
 
         List<ReviewDecisionReasonDTO> rdrDTOList = new ArrayList<>();
 
-        for(int i=0; i<5; i++) {
+        for (int i = 0; i < 5; i++) {
             ReviewDecisionReasonDTO rdrDTO = ReviewDecisionReasonDTO.builder().build();
-            rdrDTO.id = (Integer.toUnsignedLong(i+1));
+            rdrDTO.id = (Integer.toUnsignedLong(i + 1));
             rdrDTO.reason = ("testing" + i);
             rdrDTOList.add(rdrDTO);
         }

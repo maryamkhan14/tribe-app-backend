@@ -28,10 +28,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -122,7 +124,7 @@ public class UserAPITest {
         MvcResult result =
                 this.mockMvc
                         .perform(
-                                post("/api/public/user/new")
+                                post("/api/public/users")
                                         .content(gson.toJson(userRequest))
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .characterEncoding("utf-8"))
@@ -156,7 +158,7 @@ public class UserAPITest {
 
         this.mockMvc
                 .perform(
-                        post("/api/public/user/new")
+                        post("/api/public/users")
                                 .content(gson.toJson(userRequest))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8"))
@@ -166,106 +168,6 @@ public class UserAPITest {
         verify(userService, times(1))
                 .createNewUser(userRequestCaptor.capture(), preferredContactMethodCaptor.capture());
         assertThat(userRequestCaptor.getValue()).usingRecursiveComparison().isEqualTo(userRequest);
-    }
-
-    @Test
-    public void isUsernameAvailable() throws Exception {
-        String username = "admin";
-        when(userRepository.findByName(anyString()))
-                .thenReturn(Optional.empty())
-                .thenReturn(Optional.of(new User()));
-        // when userRepository returns empty Optional
-        this.mockMvc
-                .perform(
-                        get("/api/public/user/isUsernameAvailable")
-                                .param("q", username)
-                                .characterEncoding("utf-8"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"))
-                .andReturn();
-        // when userRepository returns a User
-        this.mockMvc
-                .perform(
-                        get("/api/public/user/isUsernameAvailable")
-                                .param("q", username)
-                                .characterEncoding("utf-8"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("false"))
-                .andReturn();
-        verify(userRepository, times(2)).findByName(availabilityQueryCaptor.capture());
-        assertEquals(availabilityQueryCaptor.getAllValues().get(0), username);
-        assertEquals(availabilityQueryCaptor.getAllValues().get(1), username);
-    }
-
-    @Test
-    public void isEmailAddressAvailable() throws Exception {
-        String email = Constants.FAKE_USER_EMAIL2;
-        when(userRepository.findByEmail(anyString()))
-                .thenReturn(Optional.empty())
-                .thenReturn(Optional.of(new User()));
-
-        // when userRepository returns empty Optional
-        this.mockMvc
-                .perform(
-                        get("/api/public/user/isEmailAddressAvailable")
-                                .param("q", email)
-                                .characterEncoding("utf-8"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"))
-                .andReturn();
-
-        // when userRepository returns a User
-        this.mockMvc
-                .perform(
-                        get("/api/public/user/isEmailAddressAvailable")
-                                .param("q", email)
-                                .characterEncoding("utf-8"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("false"))
-                .andReturn();
-
-        verify(userRepository, times(2)).findByEmail(availabilityQueryCaptor.capture());
-        assertEquals(availabilityQueryCaptor.getAllValues().get(0), email);
-        assertEquals(availabilityQueryCaptor.getAllValues().get(1), email);
-    }
-
-    @Test
-    public void isPhoneNumberAvailable() throws Exception {
-        String phone = Constants.FAKE_USER_PHONE2;
-        when(userRepository.findByPhone(anyString()))
-                .thenReturn(Optional.empty())
-                .thenReturn(Optional.of(new ArrayList<>()))
-                .thenReturn(Optional.of(List.of(new User())));
-
-        // when userRepository returns an empty Optional
-        this.mockMvc
-                .perform(
-                        get("/api/public/user/isPhoneNumberAvailable")
-                                .param("q", phone)
-                                .characterEncoding("utf-8"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"))
-                .andReturn();
-
-        // when userRepository returns an empty list
-        this.mockMvc
-                .perform(
-                        get("/api/public/user/isPhoneNumberAvailable")
-                                .param("q", phone)
-                                .characterEncoding("utf-8"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"))
-                .andReturn();
-
-        // when userRepository returns a list containing a User
-        this.mockMvc
-                .perform(
-                        get("/api/public/user/isPhoneNumberAvailable")
-                                .param("q", phone)
-                                .characterEncoding("utf-8"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("false"))
-                .andReturn();
     }
 
     @Test
@@ -279,8 +181,8 @@ public class UserAPITest {
 
         this.mockMvc
                 .perform(
-                        get("/api/public/user/isUserInformationUnique")
-                                .param("name", username)
+                        get("/api/public/users/availability")
+                                .param("username", username)
                                 .param("phone", phone)
                                 .param("email", email)
                                 .characterEncoding("utf-8"))
@@ -300,8 +202,8 @@ public class UserAPITest {
 
         this.mockMvc
                 .perform(
-                        get("/api/public/user/isUserInformationUnique")
-                                .param("name", username)
+                        get("/api/public/users/availability")
+                                .param("username", username)
                                 .param("phone", phone)
                                 .param("email", email)
                                 .characterEncoding("utf-8"))
@@ -321,8 +223,8 @@ public class UserAPITest {
 
         this.mockMvc
                 .perform(
-                        get("/api/public/user/isUserInformationUnique")
-                                .param("name", username)
+                        get("/api/public/users/availability")
+                                .param("username", username)
                                 .param("phone", phone)
                                 .param("email", email)
                                 .characterEncoding("utf-8"))
@@ -341,8 +243,8 @@ public class UserAPITest {
 
         this.mockMvc
                 .perform(
-                        get("/api/public/user/isUserInformationUnique")
-                                .param("name", username)
+                        get("/api/public/users/availability")
+                                .param("username", username)
                                 .param("phone", phone)
                                 .param("email", email)
                                 .characterEncoding("utf-8"))
@@ -389,7 +291,7 @@ public class UserAPITest {
 
         MvcResult result = this.mockMvc
                 .perform(
-                        post("/api/public/user/changePassword")
+                        post("/api/public/users/password-reset")
                                 .header("Authorization", "Bearer " + auth)
                                 .characterEncoding("utf-8")
                                 .content(gson.toJson(changePasswordRequest))

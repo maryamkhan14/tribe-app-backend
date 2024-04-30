@@ -1,9 +1,9 @@
 package com.savvato.tribeapp.controllers;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.savvato.tribeapp.config.principal.UserPrincipal;
 import com.savvato.tribeapp.constants.Constants;
 import com.savvato.tribeapp.controllers.dto.ReviewDecisionRequest;
-import com.savvato.tribeapp.dto.ProfileDTO;
 import com.savvato.tribeapp.entities.ReviewDecision;
 import com.savvato.tribeapp.entities.User;
 import com.savvato.tribeapp.entities.UserRole;
@@ -20,13 +20,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ReviewDecisionAPIController.class)
@@ -93,7 +90,7 @@ public class ReviewDecisionAPITest {
 
         this.mockMvc.
                 perform(
-                        post("/api/reviewer-decision")
+                        post("/api/reviewer-decisions")
                                 .header("Authorization", "Bearer " + auth)
                                 .content(objectMapper.writeValueAsString(reviewDecisionRequest))
                                 .contentType(MediaType.APPLICATION_JSON)
