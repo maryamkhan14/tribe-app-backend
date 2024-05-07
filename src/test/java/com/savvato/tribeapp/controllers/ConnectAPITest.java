@@ -186,7 +186,7 @@ public class ConnectAPITest {
         when(connectService.saveConnectionDetails(anyLong(), anyLong())).thenReturn(false);
         this.mockMvc
                 .perform(
-                        post("/api/connect")
+                        post("/api/connections")
                                 .content(gson.toJson(connectRequest))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + auth)
@@ -337,7 +337,7 @@ public class ConnectAPITest {
         MvcResult result =
                 this.mockMvc
                         .perform(
-                                get("/api/connections/{userId}/all", toBeConnectedWithUserId)
+                                get("/api/connections/{userId}", toBeConnectedWithUserId)
                                         .header("Authorization", "Bearer " + auth)
                                         .characterEncoding("utf-8"))
                         .andExpect(status().isOk())
@@ -366,7 +366,7 @@ public class ConnectAPITest {
         MvcResult result =
                 this.mockMvc
                         .perform(
-                                get("/api/connections/{userId}/all", userId)
+                                get("/api/connections/{userId}", userId)
                                         .header("Authorization", "Bearer " + auth)
                                         .characterEncoding("utf-8"))
                         .andExpect(status().isBadRequest())
